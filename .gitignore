@@ -9,3 +9,7 @@ pom.xml
 .lein-repl-history
 .lein-plugins/
 .repl*
+/*.log
+.nrepl-port
+node_modules/
+package-lock.json

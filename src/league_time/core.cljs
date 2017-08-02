@@ -1,7 +1,8 @@
 (ns league-time.core
   (:require [cljs.nodejs :as node]
             [clojure.string :refer [starts-with? upper-case]]
-            [lumo.core :refer [*command-line-args*]]))
+            ;; [lumo.core :refer [*command-line-args*]]
+            ))
 
 (node/enable-util-print!)
 (.on js/process "uncaughtException" #(js/console.error %))
@@ -51,11 +52,24 @@
       (.then #(upcoming-matches (parse-json %)))
       (.catch js/console.error)))
 
+;; TODO
+(defmacro main-with-args-sym
+  [sym]
+  `(if (empty? ~sym)
+     (println "Provide a league to check:" (keys leagues))
+     (if-let [league-url (get-league (upper-case (first ~sym)))]
+       (parse-response league-url))))
 
-;; (defn -main [& args])
-;; (set! *main-cli-fn* -main)
+;; cljs
+(defn -main [& args]
+  (if (empty? args)
+    (println "Provide a league to check:" (keys leagues))
+    (if-let [league-url (get-league (upper-case (first args)))]
+      (parse-response league-url))))
 
-(if (empty? *command-line-args*)
-  (println "Provide a league to check:" (keys leagues))
-  (if-let [league-url (get-league (upper-case (first *command-line-args*)))]
-    (parse-response league-url)))
+(set! *main-cli-fn* -main)
+
+(comment
+  ;; lumo
+  (main-with-args-sym *command-line-args*)
+  )

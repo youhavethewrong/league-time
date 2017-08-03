@@ -1,8 +1,6 @@
 (ns league-time.core
   (:require [cljs.nodejs :as node]
-            [clojure.string :refer [starts-with? upper-case]]
-            [lumo.core :refer [*command-line-args*]]
-            ))
+            [clojure.string :refer [starts-with? upper-case]]))
 
 (node/enable-util-print!)
 (.on js/process "uncaughtException" #(js/console.error %))
@@ -52,7 +50,19 @@
       (.then #(upcoming-matches (parse-json %)))
       (.catch js/console.error)))
 
-(if (empty? *command-line-args*)
-  (println "Provide a league to check:" (keys leagues))
-  (if-let [league-url (get-league (upper-case (first *command-line-args*)))]
-    (parse-response league-url)))
+;; cljs
+(defn -main
+  [& args]
+  (if (empty? args)
+    (println "Provide a league to check:" (keys leagues))
+    (if-let [league-url (get-league (upper-case (first args)))]
+      (parse-response league-url))))
+
+(set! *main-cli-fn* -main)
+
+;; lumo
+(comment
+  (if (empty? *command-line-args*)
+    (println "Provide a league to check:" (keys leagues))
+    (if-let [league-url (get-league (upper-case (first *command-line-args*)))]
+      (parse-response league-url))))

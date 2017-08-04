@@ -103,8 +103,9 @@
       (let [match-id (keyword match)
             bracket-id (keyword bracket)
             detail (bracket-id brackets)
-            match (match-id (:matches detail))]
-        (println time " - " (:name detail) " - " (:name match))))))
+            match (match-id (:matches detail))
+            formatted-time (.toLocaleString (js/Date. time) "en-US" {"timeZone" "America/Chicago"})]
+        (println formatted-time " - " (:name detail) " - " (:name match))))))
 
 (defn upcoming-matches
   "Digs out the season, start date, and end date from a response to a

@@ -1,6 +1,7 @@
 (ns league-time.core
   (:require [cljs.nodejs :as node]
-            [clojure.string :refer [starts-with? upper-case]]))
+            [clojure.pprint :as pprint]
+            [clojure.string :refer [blank? starts-with? upper-case]]))
 
 (node/enable-util-print!)
 (.on js/process "uncaughtException" #(js/console.error %))
@@ -24,17 +25,53 @@
 
 (def useragent "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1")
 
+(defn extract-events
+  [data start-date end-date]
+  (let [parsed-start (.parse js/Date start-date)
+        parsed-end (.parse js/Date end-date)]
+    (->> data
+         (filter
+          (fn item-in-date-range [{time :scheduledTime :as item}]
+            (let [parsed-date (.parse js/Date time)]
+              (and (<= parsed-date parsed-end)
+                   (>= parsed-date parsed-start)))))
+         (map
+          (fn format-event [{time :scheduledTime
+                             {:keys [blockLabel blockPrefix subBlockLabel subBlockPrefix]} :tags}]
+            {:time time
+             :event (str blockPrefix (when-not (blank? blockPrefix) " ")
+                         blockLabel (when-not (blank? blockLabel) " ")
+                         subBlockPrefix (when-not (blank? subBlockPrefix) " ")
+                         subBlockLabel )})))))
+
+(defn time-<
+  [{time-string-a :time} {time-string-b :time}]
+  (let [parsed-a (.parse js/Date time-string-a)
+        parsed-b (.parse js/Date time-string-b)]
+    (compare parsed-a parsed-b)))
+
 (defn upcoming-matches
   "Digs out the season, start date, and end date from a response to a
    GET on the lolesports/scheduleItems API endpoint."
   [data]
   (let [tournies (filter #(:published %) (:highlanderTournaments data))
-        {:keys [description startDate endDate] :as current-tourney} (last tournies)]
-    (println (str "The current season is " description ".  It begins " startDate " and ends " endDate "."))))
+        {:keys [description startDate endDate] :as current-tourney} (last tournies)
+        events (extract-events (:scheduleItems data) startDate endDate)
+        sorted-events (into (sorted-set-by time-<) events)]
+    (println (str "The current season is " description ".  It begins " startDate " and ends " endDate "."))
+    (pprint/pprint sorted-events)))
+
+(defn write-data
+  [data filename]
+  (println "Saving response to" filename)
+  (.writeFileSync fs filename (pprint/write data :pretty true :stream nil))
+  data)
 
 (defn parse-json
   [response]
-  (js->clj (.parse js/JSON response) :keywordize-keys true))
+  (let [data (js->clj (.parse js/JSON response) :keywordize-keys true)]
+;;    (write-data data "out.edn")
+    data))
 
 (defn parse-response
   [url]
@@ -43,10 +80,14 @@
          (let [scheme (if (starts-with? url "https") https http)]
            (.get scheme url
                  (fn [res]
-                   (let [body (atom "")]
-                     (-> res
-                         (.on "data" #(swap! body str (.toString %)))
-                         (.on "end" (fn [_] (resolve @body))))))))))
+                   (if (not= (aget res "statusCode") 200)
+                     (do
+                       (println "Rejecting due to bad status code" (aget res "statusCode"))
+                       (reject res))
+                     (let [body (atom "")]
+                       (-> res
+                           (.on "data" #(swap! body str (.toString %)))
+                           (.on "end" (fn [_] (resolve @body)))))))))))
       (.then #(upcoming-matches (parse-json %)))
       (.catch js/console.error)))
 

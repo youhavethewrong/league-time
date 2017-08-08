@@ -1,3 +1,17 @@
 #!/usr/bin/env sh
 
-java -cp cljs.jar clojure.main scripts/build.clj
+if [ -f "main.js" ]
+then
+  echo "Cleaning build artifact."
+  rm main.js
+fi
+
+if [ -d "out" ]
+then
+  echo "Cleaning build intermediates."
+  rm -r out
+fi
+
+echo "Building..."
+java -cp cljs.jar:src clojure.main scripts/build.clj
+echo "Done!"

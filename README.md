@@ -1,6 +1,11 @@
 # Building with cljs.jar
 
-    $ scripts/build && node main.js NA | tee ok
+    $ scripts/build
+    Cleaning build artifact.
+    Cleaning build intermediates.
+    Building...
+    Done!
+    $ node main.js NA
     The current season is NA 2017 Summer Split.  It begins 2017-06-02 and ends 2017-09-03.
     ...
     8/6/2017, 5:00:00 PM  -  regular_season  -  TSM-vs-CLG

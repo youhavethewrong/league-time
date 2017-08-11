@@ -72,9 +72,12 @@
     (println (str "Can't get schedule for " league ". Valid leagues are " (keys leagues) "."))))
 
 (defn extract-matches
+  "Allow a day for timezone fun."
   [data start-date end-date]
   (let [parsed-start (.parse js/Date start-date)
-        parsed-end (.parse js/Date end-date)]
+        parsed-end (.parse js/Date end-date)
+        parsed-start (- parsed-start 86400000 )
+        parsed-end (+ parsed-end 86400000)]
     (->> data
          (filter
           (fn item-in-date-range [{time :scheduledTime :as item}]

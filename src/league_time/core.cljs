@@ -54,8 +54,8 @@
    "NA-CS" 4
    "EU-CS" 5
    "LCK" 6
-   "LMS" 7
-   "LPL" 8
+   "LPL" 7
+   "LMS" 8
    "WORLDS" 9
    "MSI" 10})
 

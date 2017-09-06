@@ -1,5 +1,6 @@
 pom.xml
 *jar
+*.js
 /lib/
 /classes/
 /out/
@@ -13,7 +14,4 @@ pom.xml
 .nrepl-port
 node_modules/
 package-lock.json
-main.js
 tmp/
-.lumo_cache/
-.nexe/

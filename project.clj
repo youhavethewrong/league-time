@@ -5,22 +5,24 @@
   :profiles {:dev
              {:dependencies [[com.cemerick/piggieback "0.2.2"]
                              [org.clojure/tools.nrepl "0.2.13"]]
-              :plugins [[lein-cljsbuild "1.1.7"]
-                        [lein-npm "0.6.2"]]
+              :plugins [[lein-cljsbuild "1.1.7"]]
               :source-paths ["src" "dev"]
               :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}}
 
-  :npm {:devDependencies [pkg "4.2.4"]
-        :package {:scripts {:bin "pkg league-time.js -t node8-linux-x64"}}}
-
   :clean-targets [[:cljsbuild :builds 0 :compiler :output-to]
+                  [:cljsbuild :builds 0 :compiler :output-dir]
                   :target-path
-                  :compile-path]
+                  "node_modules"
+                  "package.json"
+                  "package-lock.json"]
 
   :cljsbuild {:builds
               [{:id "dev"
                 :source-paths ["src"]
                 :compiler {:output-dir "out"
                            :output-to "league-time.js"
+                           :language-in "es5"
+                           :npm-deps {"moment" "2.18.1"}
+                           :install-deps true
                            :optimizations :simple
                            :target :nodejs}}]})

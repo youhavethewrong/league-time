@@ -9,6 +9,7 @@
 (defonce http (node/require "http"))
 (defonce https (node/require "https"))
 (defonce fs (node/require "fs"))
+(defonce moment (node/require "moment"))
 
 (def useragent "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1")
 
@@ -42,7 +43,7 @@
       (.then f)
       (.catch js/console.error)))
 
-(defn time-<
+(defn time<
   [{time-string-a :time} {time-string-b :time}]
   (let [parsed-a (.parse js/Date time-string-a)
         parsed-b (.parse js/Date time-string-b)]
@@ -107,7 +108,7 @@
             bracket-id (keyword bracket)
             detail (bracket-id brackets)
             match (match-id (:matches detail))
-            formatted-time (.toLocaleString (js/Date. time) "en-US" {"timeZone" "America/Chicago"})]
+            formatted-time (.format (moment. time) "YYYY.MM.DD HH:mm:ss Z")]
         (println formatted-time " - " (:name detail) " - " (:name match))))))
 
 (defn upcoming-matches
@@ -117,7 +118,7 @@
   (let [tournies (filter #(:published %) (:highlanderTournaments data))
         {:keys [description startDate endDate] :as current-tourney} (last tournies)
         matches (extract-matches (:scheduleItems data) startDate endDate)
-        sorted-matches (into (sorted-set-by time-<) matches)
+        sorted-matches (into (sorted-set-by time<) matches)
         league-detail-url (get-league league-name)]
     (println (str "The current season is " description ".  It begins " startDate " and ends " endDate "."))
     (interpret-data league-detail-url #(detail-matches (parse-json %) sorted-matches))))

@@ -1,6 +1,7 @@
 # Building with Leiningen
 
-    $ lein do clean, cljsbuild once, npm run bin
+    $ scripts/build
+    $ scripts/make-bin
     $ ./league-time NA
     The current season is NA 2017 Summer Split.  It begins 2017-06-02 and ends 2017-09-03.
     ...

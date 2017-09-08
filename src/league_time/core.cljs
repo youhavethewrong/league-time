@@ -1,7 +1,8 @@
 (ns league-time.core
   (:require [cljs.nodejs :as node]
             [clojure.pprint :as pprint]
-            [clojure.string :refer [blank? starts-with? upper-case]]))
+            [clojure.string :refer [blank? starts-with? upper-case]]
+            ["moment/moment" :as moment]))
 
 (node/enable-util-print!)
 (.on js/process "uncaughtException" #(js/console.error %))
@@ -9,7 +10,6 @@
 (defonce http (node/require "http"))
 (defonce https (node/require "https"))
 (defonce fs (node/require "fs"))
-(defonce moment (node/require "moment"))
 
 (def useragent "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1")
 

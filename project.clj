@@ -19,10 +19,11 @@
   :cljsbuild {:builds
               [{:id "dev"
                 :source-paths ["src"]
-                :compiler {:output-dir "out"
-                           :output-to "league-time.js"
+                :compiler {:install-deps true
                            :language-in "es5"
+                           :main league-time.core
                            :npm-deps {"moment" "2.18.1"}
-                           :install-deps true
                            :optimizations :simple
+                           :output-dir "out"
+                           :output-to "out/league-time.js"
                            :target :nodejs}}]})

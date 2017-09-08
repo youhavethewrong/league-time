@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+npm install -g pkg@4.2.4
+pkg league-time.js -t node8-linux-x64,node8-win-x64

@@ -43,12 +43,6 @@
       (.then f)
       (.catch js/console.error)))
 
-(defn time<
-  [{time-string-a :time} {time-string-b :time}]
-  (let [parsed-a (.parse js/Date time-string-a)
-        parsed-b (.parse js/Date time-string-b)]
-    (compare parsed-a parsed-b)))
-
 (def leagues
   {"NA" 2
    "EU" 3
@@ -60,68 +54,39 @@
    "WORLDS" 9
    "MSI" 10})
 
-(defn get-league
-  [league]
-  (if (contains? (set (keys leagues)) league)
-    (str "http://api.lolesports.com/api/v1/leagues/" (leagues league))
-    (println (str "Can't get league info about " league ".  Valid leagues are " (keys leagues) "."))))
-
 (defn get-league-schedule
   [league]
   (if (contains? (set (keys leagues)) league)
     (str "http://api.lolesports.com/api/v1/scheduleItems?leagueId=" (leagues league))
     (println (str "Can't get schedule for " league ". Valid leagues are " (keys leagues) "."))))
 
-(defn extract-matches
-  "Allow a day for timezone fun."
-  [data start-date end-date]
-  (let [parsed-start (.parse js/Date start-date)
-        parsed-end (.parse js/Date end-date)
-        parsed-start (- parsed-start 86400000 )
-        parsed-end (+ parsed-end 86400000)]
-    (->> data
-         (filter
-          (fn item-in-date-range [{time :scheduledTime :as item}]
-            (let [parsed-date (.parse js/Date time)]
-              (and (<= parsed-date parsed-end)
-                   (>= parsed-date parsed-start)))))
-         (map
-          (fn format-match [{time :scheduledTime
-                             match :match
-                             bracket :bracket
-                             tournament :tournament}]
-            {:time time
-             :match match
-             :bracket bracket
-             :tournament tournament})))))
+(defn date-range
+  [{a-start :startDate} {b-start :startDate}]
+  (compare a-start b-start))
 
-(defn detail-matches
-  [detail-data sorted-matches]
-  (let [tournament-id (:tournament (first sorted-matches))
-        matching-tourneys (filter
-                           #(= tournament-id (:id %))
-                           (:highlanderTournaments detail-data))
-        current-tourney (first matching-tourneys)
-        brackets (:brackets current-tourney)]
-    (doseq [{match :match bracket :bracket time :time} sorted-matches]
-      (let [match-id (keyword match)
-            bracket-id (keyword bracket)
-            detail (bracket-id brackets)
-            match (match-id (:matches detail))
-            formatted-time (.format (moment. time) "YYYY.MM.DD HH:mm:ss Z")]
-        (println formatted-time " - " (:name detail) " - " (:name match))))))
+(defn time-range
+  [{a-time :scheduledTime} {b-time :scheduledTime}]
+  (compare a-time b-time))
 
 (defn upcoming-matches
   "Digs out the season, start date, and end date from a response to a
    GET on the lolesports/scheduleItems API endpoint."
   [data league-name]
   (let [tournies (filter #(:published %) (:highlanderTournaments data))
-        {:keys [description startDate endDate] :as current-tourney} (last tournies)
-        matches (extract-matches (:scheduleItems data) startDate endDate)
-        sorted-matches (into (sorted-set-by time<) matches)
-        league-detail-url (get-league league-name)]
+        sorted-tournies (into (sorted-set-by date-range) tournies)
+        {:keys [id description startDate endDate] :as tournament-info} (last sorted-tournies)
+        tournament-schedule (filter #(= id (:tournament %)) (:scheduleItems data))
+        sorted-t-sched (into (sorted-set-by time-range) tournament-schedule)]
     (println (str "The current season is " description ".  It begins " startDate " and ends " endDate "."))
-    (interpret-data league-detail-url #(detail-matches (parse-json %) sorted-matches))))
+    (doseq [scheduled-match sorted-t-sched]
+      (let [{:keys [match bracket scheduledTime]} scheduled-match
+            b (keyword bracket)
+            i (keyword match)
+            formatted-time (.format (moment. scheduledTime) "YYYY.MM.DD HH:mm:ss Z")]
+        (println formatted-time
+                 (get-in tournament-info [:brackets b :name])
+                 (get-in tournament-info [:brackets b :matches i :name])
+                 (get-in tournament-info [:brackets b :matches i :state]))))))
 
 ;; cljs
 (defn -main

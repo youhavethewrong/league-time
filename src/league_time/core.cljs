@@ -22,7 +22,7 @@
 (defn parse-json
   [response]
   (let [data (js->clj (.parse js/JSON response) :keywordize-keys true)]
-    ;;    (write-data data "out.edn")
+;;    (write-data data "out.edn")
     data))
 
 (defn interpret-data
@@ -82,13 +82,16 @@
       (let [{:keys [match bracket scheduledTime]} scheduled-match
             b (keyword bracket)
             i (keyword match)
+            n (get-in tournament-info [:brackets b :name])
             formatted-time (.format (moment. scheduledTime) "YYYY.MM.DD HH:mm:ss Z")]
-        (println formatted-time
-                 (get-in tournament-info [:brackets b :name])
-                 (get-in tournament-info [:brackets b :matches i :name])
-                 (get-in tournament-info [:brackets b :matches i :state]))))))
+        (when n
+            (println formatted-time
+                     n
+                     (get-in tournament-info [:brackets b :matches i :name])
+                     "best of"
+                     (get-in tournament-info [:brackets b :matchType :options :best_of])
+                     (get-in tournament-info [:brackets b :matches i :state])))))))
 
-;; cljs
 (defn -main
   [& args]
   (if (empty? args)

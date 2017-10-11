@@ -68,6 +68,22 @@
   [{a-time :scheduledTime} {b-time :scheduledTime}]
   (compare a-time b-time))
 
+(defn team-scores
+  [scores rosters]
+  (apply str
+         (interpose
+          ":"
+          (map
+           (fn [[k v]]
+             (str (get-in rosters [k :name]) " " v))
+           scores))))
+
+(defn position-score
+  [result rosters]
+  (if-let [winner (get-in rosters [(keyword (:roster (ffirst result))) :name])]
+    (str "[" winner ":W," (get-in rosters [(keyword (:roster (first (second result)))) :name]) ":L]")
+    "No result"))
+
 (defn upcoming-matches
   "Digs out the season, start date, and end date from a response to a
    GET on the lolesports/scheduleItems API endpoint."
@@ -83,14 +99,19 @@
             b (keyword bracket)
             i (keyword match)
             n (get-in tournament-info [:brackets b :name])
+            the-scores (team-scores (get-in tournament-info [:brackets b :matches i :scores])
+                                    (:rosters tournament-info))
             formatted-time (.format (moment. scheduledTime) "YYYY.MM.DD HH:mm:ss Z")]
         (when n
-            (println formatted-time
-                     n
-                     (get-in tournament-info [:brackets b :matches i :name])
-                     "best of"
-                     (get-in tournament-info [:brackets b :matchType :options :best_of])
-                     (get-in tournament-info [:brackets b :matches i :state])))))))
+          (println formatted-time
+                   n
+                   (get-in tournament-info [:brackets b :matches i :name])
+                   (str "(best of " (get-in tournament-info [:brackets b :matchType :options :best_of]) ")")
+                   (if (not (empty? the-scores))
+                     the-scores
+                     (position-score
+                      (get-in tournament-info [:brackets b :matches i :standings :result])
+                      (:rosters tournament-info)))))))))
 
 (defn -main
   [& args]

@@ -13,6 +13,8 @@
 
 (def useragent "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1")
 
+(def player-stats-url "http://api.lolesports.com/api/v2/tournamentPlayerStats?tournamentId=41a602f2-4e4d-4306-949c-e5919ed79628")
+
 (defn write-data
   [data filename]
   (println "Saving response to" filename)
@@ -44,7 +46,9 @@
       (.catch js/console.error)))
 
 (def leagues
-  {"NA" 2
+  "These are the valid league IDs I've discovered so far.  Searched 0-20."
+  {"ALL-STARS" 1
+   "NA" 2
    "EU" 3
    "NA-CS" 4
    "EU-CS" 5
@@ -52,7 +56,9 @@
    "LPL" 7
    "LMS" 8
    "WORLDS" 9
-   "MSI" 10})
+   "MSI" 10
+   "IWQ" 12
+   "OPL" 13})
 
 (defn get-league-schedule
   [league]

@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
 
-npm install -g pkg@4.2.4
-pkg out/league-time.js -t node8-linux-x64,node8-win-x64
+lein cljsbuild once
+npm install -g pkg@4.2.6
+pkg out/league-time.js -t node8-linux-x64,node8-linux-armv6

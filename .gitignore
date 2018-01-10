@@ -15,3 +15,7 @@ pom.xml
 node_modules/
 package-lock.json
 tmp/
+.cljs_node_repl/                             
+.lumo_cache/                                 
+package.json                                 
+references/   

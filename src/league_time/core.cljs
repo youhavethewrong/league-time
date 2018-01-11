@@ -1,12 +1,12 @@
 (ns league-time.core
   (:require [cljs.nodejs :as node]
             [clojure.pprint :as pprint]
-            [clojure.string :refer [blank? starts-with? upper-case]]
-            ["moment/moment" :as moment]))
+            [clojure.string :refer [blank? starts-with? upper-case]]))
 
 (node/enable-util-print!)
 (.on js/process "uncaughtException" #(js/console.error %))
 
+(defonce moment (node/require "moment/moment"))
 (defonce http (node/require "http"))
 (defonce https (node/require "https"))
 (defonce fs (node/require "fs"))

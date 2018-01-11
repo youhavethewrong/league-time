@@ -24,6 +24,6 @@
                            :main league-time.core
                            :npm-deps {"moment" "2.18.1"}
                            :optimizations :simple
-                           :output-dir "out"
-                           :output-to "out/league-time.js"
+                           :output-dir "target"
+                           :output-to "target/league-time.js"
                            :target :nodejs}}]})

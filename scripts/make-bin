@@ -1,5 +1,12 @@
 #!/usr/bin/env sh
 
-lein cljsbuild once
-npm install -g pkg@4.2.6
-pkg out/league-time.js -t node8-linux-x64,node8-linux-armv6,node8-win-x64
+if [ -e "target/league-time.js" ]
+then
+  npm install -g pkg@4.2.6
+  pkg target/league-time.js -t node8-linux-x64,node8-linux-armv6,node8-win-x64
+else
+  echo "Please build league time first!"
+  echo "Try one of these:"
+  echo "lein cljsbuild once"
+  echo "shadow-cljs release app"
+fi

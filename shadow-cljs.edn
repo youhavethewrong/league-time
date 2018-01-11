@@ -1,0 +1,5 @@
+{:source-paths ["src"]
+
+ :builds {:app {:target :node-script
+                :output-to "target/league-time.js"
+                :main league-time.core/-main}}}

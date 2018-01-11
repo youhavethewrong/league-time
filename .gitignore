@@ -13,9 +13,7 @@ pom.xml
 /*.log
 .nrepl-port
 node_modules/
-package-lock.json
 tmp/
 .cljs_node_repl/                             
 .lumo_cache/                                 
-package.json                                 
 references/   

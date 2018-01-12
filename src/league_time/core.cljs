@@ -1,12 +1,12 @@
 (ns league-time.core
   (:require [cljs.nodejs :as node]
             [clojure.pprint :as pprint]
-            [clojure.string :refer [blank? starts-with? upper-case]]))
+            [clojure.string :refer [blank? starts-with? upper-case]]
+            ["moment/moment" :as moment]))
 
 (node/enable-util-print!)
 (.on js/process "uncaughtException" #(js/console.error %))
 
-(defonce moment (node/require "moment/moment"))
 (defonce http (node/require "http"))
 (defonce https (node/require "https"))
 (defonce fs (node/require "fs"))
@@ -107,7 +107,7 @@
             n (get-in tournament-info [:brackets b :name])
             the-scores (team-scores (get-in tournament-info [:brackets b :matches i :scores])
                                     (:rosters tournament-info))
-            formatted-time (.format (moment. scheduledTime) "YYYY.MM.DD HH:mm:ss Z")]
+            formatted-time (.format (new moment scheduledTime) "YYYY.MM.DD HH:mm:ss Z")]
         (when n
           (println formatted-time
                    n

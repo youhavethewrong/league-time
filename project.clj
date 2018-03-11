@@ -22,7 +22,7 @@
                 :compiler {:install-deps true
                            :language-in "es5"
                            :main league-time.core
-                           :npm-deps {"moment" "2.18.1"}
+                           :npm-deps {"moment" "2.20.0"}
                            :optimizations :simple
                            :output-dir "target"
                            :output-to "target/league-time.js"
